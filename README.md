@@ -5,11 +5,14 @@ On Mac, go to a directory where you want to create the `orderbook/` directory, a
 
 ```
 git clone https://github.com/c-s/orderbook.git
+cd orderbook
 cmake .
+make
+./orderbook
 ```
 If your cmake is old, run
 
 ```
 brew install cmake
 ```
-to get at least 3.5.
+to get the cmake version at least 3.5.
