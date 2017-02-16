@@ -26,7 +26,7 @@ namespace baselineorderbook {
     class OrderBook {
     public:
         static Logging& logger() {
-            static Logging& log = SimpleLogging::getLogger("OrderBook");
+            static Logging& log = Logging::getLogger("OrderBook");
             return log;
         };
 

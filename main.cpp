@@ -24,7 +24,7 @@ void test() {
     auto msft_messages_10 = "/Users/changsoonpark/Downloads/LOBSTER_SampleFile_MSFT_2012-06-21_10/MSFT_2012-06-21_34200000_57600000_message_10.csv";
     auto msft_messages_50 = "/Users/changsoonpark/Downloads/LOBSTER_SampleFile_MSFT_2012-06-21_50/MSFT_2012-06-21_34200000_37800000_message_50.csv";
     auto aapl_messages_50 = "/Users/changsoonpark/Downloads/LOBSTER_SampleFile_AAPL_2012-06-21_50/AAPL_2012-06-21_34200000_37800000_message_50.csv";
-    auto messages = MessageParse::read(aapl_messages_50);
+    auto messages = MessageParse::read(msft_messages_50);
     auto time = timeit([&]() {
         for(const auto& message : messages) {
             orderBook.processMessage(message);
@@ -38,8 +38,8 @@ void test() {
 }
 
 void testlog() {
-    auto& logger1 = SimpleLogging::getLogger(Logging::LogLevel::DEBUG, "test1");
-    auto& logger2 = SimpleLogging::getLogger("test2");
+    auto& logger1 = Logging::getLogger(Logging::LogLevel::DEBUG, "test1");
+    auto& logger2 = Logging::getLogger("test2");
 
     logger1.debug("logger1 debug");
     logger1.info("logger1 info");
@@ -51,7 +51,7 @@ void testlog() {
     logger2.warning("logger2 warning");
     logger2.error("logger2 error");
 
-    SimpleLogging::globalLogLevel() = Logging::LogLevel::ERROR;
+    Logging::globalLogLevel() = Logging::LogLevel::ERROR;
 
     logger2.debug("2 logger2 debug");
     logger2.info("2 logger2 info");

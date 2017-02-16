@@ -10,33 +10,19 @@
 #include <unordered_map>
 
 namespace baselineorderbook {
+
     class Logging {
-    public:
-        virtual ~Logging() {}
-        virtual void debug(const char* str) = 0;
-        virtual void info(const char* str) = 0;
-        virtual void warning(const char* str) = 0;
-        virtual void error(const char* str) = 0;
-
-        virtual std::ostream& debug(std::ostream& os) = 0;
-        virtual std::ostream& info(std::ostream& os) = 0;
-        virtual std::ostream& warning(std::ostream& os) = 0;
-        virtual std::ostream& error(std::ostream& os) = 0;
-
     public:
         enum class LogLevel {
             // GLOBAL follows the global option, which itself is INFO by default.
-            GLOBAL=-1, DEBUG=0, INFO=10, WARNING=20, ERROR=30
+                    GLOBAL=-1, DEBUG=0, INFO=10, WARNING=20, ERROR=30
         };
-    };
 
-    class SimpleLogging : public Logging {
     private:
-        SimpleLogging(LogLevel logLevel, std::string title) : logLevel {logLevel}, title {title} {}
-        SimpleLogging(const SimpleLogging&) = delete;
-        SimpleLogging(SimpleLogging&&) = delete;
-        SimpleLogging& operator= (const SimpleLogging&) = delete;
-        SimpleLogging& operator= (SimpleLogging&&) = delete;
+        Logging(const Logging&) = delete;
+        Logging(Logging&&) = delete;
+        Logging& operator= (const Logging&) = delete;
+        Logging& operator= (Logging&&) = delete;
 
         LogLevel logLevel;
         std::string title;
@@ -68,30 +54,34 @@ namespace baselineorderbook {
         }
 
     public:
-        static SimpleLogging& getLogger(const char* title) {
+        // has to be public to use map::emplace in getLogger. any workaround?
+        Logging(LogLevel logLevel, std::string title) : logLevel {logLevel}, title {title} {}
+
+        static Logging& getLogger(const char* title) {
             return getLogger(LogLevel::GLOBAL, std::string(title));
         }
 
-        static SimpleLogging& getLogger(std::string title) {
+        static Logging& getLogger(std::string title) {
             return getLogger(LogLevel::GLOBAL, std::string(title));
         }
 
-        static SimpleLogging& getLogger(LogLevel logLevel, const char* title) {
+        static Logging& getLogger(LogLevel logLevel, const char* title) {
             return getLogger(logLevel, std::string(title));
         }
 
-        static SimpleLogging& getLogger(LogLevel logLevel, std::string title) {
-            static std::unordered_map<std::string, std::unique_ptr<SimpleLogging>> loggerMap {};
+        static Logging& getLogger(LogLevel logLevel, std::string title) {
+            static std::unordered_map<std::string, Logging> loggerMap {};
 
             auto it = loggerMap.find(title);
             if(it == loggerMap.end()) {
-                auto logger = std::unique_ptr<SimpleLogging>(new SimpleLogging(logLevel, title));
-                loggerMap[title] = std::move(logger);
-                return *loggerMap[title];
+                loggerMap.emplace(std::piecewise_construct,
+                                  std::forward_as_tuple(title),
+                                  std::forward_as_tuple(logLevel, title));
+                return loggerMap.at(title);
             }
             else {
-                it->second->setLevel(logLevel);
-                return *it->second;
+                it->second.setLevel(logLevel);
+                return it->second;
             }
         }
         void debug(const char* str) { return out(LogLevel::DEBUG, "[DEBUG] ", str); }

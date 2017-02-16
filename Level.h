@@ -15,7 +15,7 @@ namespace baselineorderbook {
     class Level {
     public:
         static Logging& logger() {
-            static Logging& log = SimpleLogging::getLogger("Level");
+            static Logging& log = Logging::getLogger("Level");
             return log;
         };
 
